@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MelLang / NormaDaki — документация</title>
+    <meta
+      name="description"
+      content="Документация учебного функционального языка MelLang / NormaDaki: синтаксис, запуск, архитектура, примеры и Web IDE."
+    />
+    <style>
+      :root {
+        --bg: #0d1017;
+        --bg-soft: #111827;
+        --panel: rgba(20, 25, 36, 0.88);
+        --panel-2: rgba(31, 41, 55, 0.78);
+        --text: #f8fafc;
+        --muted: #a5b4c5;
+        --line: rgba(148, 163, 184, 0.22);
+        --accent: #ff3b5c;
+        --accent-2: #ffb703;
+        --green: #2dd4bf;
+        --blue: #60a5fa;
+        --code: #070a12;
+        --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+        --radius: 22px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background:
+          radial-gradient(
+            circle at 10% 0%,
+            rgba(255, 59, 92, 0.24),
+            transparent 31rem
+          ),
+          radial-gradient(
+            circle at 90% 8%,
+            rgba(96, 165, 250, 0.16),
+            transparent 29rem
+          ),
+          radial-gradient(
+            circle at 70% 90%,
+            rgba(255, 183, 3, 0.12),
+            transparent 30rem
+          ),
+          var(--bg);
+        line-height: 1.65;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 300px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      aside {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 22px;
+        border-right: 1px solid var(--line);
+        background: rgba(8, 11, 18, 0.76);
+        backdrop-filter: blur(20px);
+        overflow: auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .logo {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--accent), #ff7a00);
+        color: white;
+        font-weight: 900;
+        box-shadow: 0 12px 35px rgba(255, 59, 92, 0.25);
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 16px;
+        line-height: 1.1;
+      }
+
+      .brand span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .search {
+        width: 100%;
+        margin: 12px 0 18px;
+        padding: 12px 13px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.045);
+        color: var(--text);
+        outline: none;
+        font: inherit;
+      }
+
+      .search:focus {
+        border-color: rgba(255, 183, 3, 0.72);
+      }
+
+      .nav-label {
+        margin: 20px 0 8px;
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.11em;
+        font-weight: 800;
+      }
+
+      nav a {
+        display: block;
+        text-decoration: none;
+        color: var(--muted);
+        padding: 8px 10px;
+        border-radius: 12px;
+        font-size: 14px;
+        line-height: 1.25;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      nav a:hover,
+      nav a.active {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.06);
+      }
+
+      main {
+        min-width: 0;
+        padding: 34px clamp(18px, 4vw, 56px) 64px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        padding: clamp(26px, 5vw, 56px);
+        border: 1px solid var(--line);
+        border-radius: 32px;
+        background:
+          linear-gradient(
+            135deg,
+            rgba(255, 59, 92, 0.16),
+            rgba(96, 165, 250, 0.11)
+          ),
+          rgba(17, 24, 39, 0.78);
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        inset: auto -90px -110px auto;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: rgba(255, 183, 3, 0.16);
+        filter: blur(3px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 18px;
+        padding: 7px 11px;
+        border: 1px solid rgba(255, 183, 3, 0.34);
+        border-radius: 999px;
+        color: #ffe8a3;
+        background: rgba(255, 183, 3, 0.08);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        line-height: 1.16;
+        letter-spacing: -0.035em;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 980px;
+        font-size: clamp(38px, 7vw, 76px);
+      }
+
+      .lead {
+        max-width: 900px;
+        margin: 20px 0 0;
+        color: #dbe7f6;
+        font-size: clamp(17px, 2vw, 21px);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 44px;
+        padding: 11px 15px;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        color: var(--text);
+        text-decoration: none;
+        background: rgba(255, 255, 255, 0.055);
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .btn.primary {
+        border-color: transparent;
+        background: linear-gradient(135deg, var(--accent), #ff7a00);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin: 22px 0;
+      }
+
+      .card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        box-shadow: 0 12px 42px rgba(0, 0, 0, 0.14);
+      }
+
+      .card b {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 16px;
+      }
+
+      .card span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .notice {
+        margin: 22px 0;
+        padding: 16px 18px;
+        border: 1px solid rgba(45, 212, 191, 0.34);
+        border-radius: var(--radius);
+        background: rgba(45, 212, 191, 0.08);
+        color: #d9fff9;
+      }
+
+      .section {
+        margin-top: 26px;
+        padding: clamp(20px, 3vw, 32px);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background: var(--panel);
+        box-shadow: var(--shadow);
+      }
+
+      .section > h2:first-child,
+      .doc-article > h2:first-child,
+      .doc-article > h1:first-child {
+        margin-top: 0;
+      }
+
+      .doc-toolbar {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin-bottom: 18px;
+      }
+
+      .doc-status {
+        color: var(--muted);
+      }
+
+      .doc-article {
+        padding: 24px 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .doc-article:first-of-type {
+        border-top: 0;
+        padding-top: 0;
+      }
+
+      .doc-file {
+        display: inline-flex;
+        margin-bottom: 14px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: rgba(96, 165, 250, 0.12);
+        color: #cfe4ff;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      p {
+        color: #dbe5f1;
+      }
+
+      ul,
+      ol {
+        color: #dbe5f1;
+        padding-left: 1.35rem;
+      }
+
+      li {
+        margin: 0.25rem 0;
+      }
+
+      hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+        margin: 28px 0;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 7px;
+        background: rgba(255, 255, 255, 0.075);
+        color: #ffd166;
+        font-family: "JetBrains Mono", "Fira Code", Consolas, monospace;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow: auto;
+        padding: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 18px;
+        background: var(--code);
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+      }
+
+      pre code {
+        display: block;
+        padding: 0;
+        background: transparent;
+        color: #e5e7eb;
+        font-size: 14px;
+        line-height: 1.6;
+        white-space: pre;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 18px 0;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        display: block;
+        overflow-x: auto;
+      }
+
+      th,
+      td {
+        padding: 11px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        color: #dbe5f1;
+      }
+
+      th {
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        font-weight: 900;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      blockquote {
+        margin: 18px 0;
+        padding: 12px 18px;
+        border-left: 4px solid var(--accent-2);
+        border-radius: 12px;
+        background: rgba(255, 183, 3, 0.07);
+        color: #fff3c4;
+      }
+
+      .footer {
+        margin-top: 32px;
+        color: var(--muted);
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .hidden-by-search {
+        display: none !important;
+      }
+
+      @media (max-width: 1050px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+        aside {
+          position: relative;
+          height: auto;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        nav {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 4px;
+        }
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .grid,
+        nav {
+          grid-template-columns: 1fr;
+        }
+        .actions,
+        .doc-toolbar {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .btn {
+          width: 100%;
+        }
+        main {
+          padding-bottom: 34px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside>
+        <div class="brand">
+          <div class="logo">ML</div>
+          <div>
+            <strong>MelLang</strong>
+            <span>NormaDaki docs</span>
+          </div>
+        </div>
+
+        <input
+          id="search"
+          class="search"
+          type="search"
+          placeholder="Поиск по документации..."
+        />
+
+        <div class="nav-label">Навигация</div>
+        <nav id="staticNav">
+          <a href="#top">Главная</a>
+          <a href="#quick-start">Быстрый старт</a>
+          <a href="#features">Возможности</a>
+          <a href="#syntax">Синтаксис</a>
+          <a href="#examples">Примеры</a>
+          <a href="#web-ide">Web IDE</a>
+          <a href="#all-docs">Все Markdown-файлы</a>
+        </nav>
+
+        <div class="nav-label">Файлы docs/*.md</div>
+        <nav id="fileNav">
+          <a href="#all-docs">Загрузка списка...</a>
+        </nav>
+      </aside>
+
+      <main id="top">
+        <section class="hero">
+          <div class="eyebrow">
+            Функциональное программирование · F# · мемный синтаксис
+          </div>
+          <h1>MelLang / NormaDaki</h1>
+          <p class="lead">
+            Полная страница документации для GitHub Pages. Она автоматически
+            подтягивает все Markdown-файлы из папки <code>docs/</code>, собирает
+            их в один сайт и добавляет удобную навигацию.
+          </p>
+          <div class="actions">
+            <a
+              class="btn primary"
+              href="https://github.com/MAILabs-Edu-2026/funcpro-coursework-prikolno-2"
+              target="_blank"
+              rel="noreferrer"
+              >Открыть репозиторий</a
+            >
+            <a class="btn" href="#all-docs">Читать документацию</a>
+            <button class="btn" id="copyRun">Скопировать запуск</button>
+          </div>
+        </section>
+
+        <section class="grid" id="features">
+          <div class="card">
+            <b>AST + Parser</b
+            ><span
+              >S-expression синтаксис, токенизация и преобразование в дерево
+              выражений.</span
+            >
+          </div>
+          <div class="card">
+            <b>Interpreter</b
+            ><span
+              >Tree-walking интерпретатор на F# с окружениями и встроенными
+              функциями.</span
+            >
+          </div>
+          <div class="card">
+            <b>Functional Core</b
+            ><span
+              >Функции, замыкания, рекурсия, списки, map/filter/fold и
+              pipeline.</span
+            >
+          </div>
+          <div class="card">
+            <b>Web IDE</b
+            ><span
+              >Локальная браузерная IDE для запуска и сохранения программ на
+              MelLang.</span
+            >
+          </div>
+        </section>
+
+        <section class="section" id="quick-start">
+          <h2>Быстрый старт</h2>
+          <p>
+            Проект запускается через .NET CLI из папки <code>MelLang</code>.
+          </p>
+          <pre><code>cd MelLang
+
+dotnet run -- examples/factorial.mel</code></pre>
+          <p>Запуск локальной Web IDE:</p>
+          <pre><code>cd MelLang
+
+dotnet run -- --web</code></pre>
+          <p>После запуска сервера открыть в браузере:</p>
+          <pre><code>http://localhost:5000</code></pre>
+        </section>
+
+        <section class="section" id="syntax">
+          <h2>Ключевые конструкции языка</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Конструкция</th>
+                <th>Ключевое слово</th>
+                <th>Смысл</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Блок программы</td>
+                <td><code>да_будет_свет</code> / <code>я_помылся</code></td>
+                <td>начало и конец последовательности выражений</td>
+              </tr>
+              <tr>
+                <td>Переменная</td>
+                <td><code>браво_босс</code></td>
+                <td>создание значения в окружении</td>
+              </tr>
+              <tr>
+                <td>Функция</td>
+                <td><code>омайгад</code></td>
+                <td>анонимная функция / lambda</td>
+              </tr>
+              <tr>
+                <td>Вызов функции</td>
+                <td><code>дай_его</code></td>
+                <td>применение функции к аргументам</td>
+              </tr>
+              <tr>
+                <td>Условие</td>
+                <td><code>плаки_плаки_или_нормалдаки</code></td>
+                <td>аналог if/else</td>
+              </tr>
+              <tr>
+                <td>Рекурсия</td>
+                <td><code>еще_посидим</code></td>
+                <td>рекурсивное определение функции</td>
+              </tr>
+              <tr>
+                <td>Ленивое значение</td>
+                <td><code>еще_посидим_лениво</code></td>
+                <td>отложенное вычисление</td>
+              </tr>
+              <tr>
+                <td>Вывод</td>
+                <td><code>скажи_это_сон_да</code></td>
+                <td>печать результата</td>
+              </tr>
+              <tr>
+                <td>Список</td>
+                <td><code>маленький_вкусненький_малышочек</code></td>
+                <td>создание списка</td>
+              </tr>
+              <tr>
+                <td>Map / Filter / Fold</td>
+                <td>
+                  <code>думала_думала</code>, <code>танцуем_все</code>,
+                  <code>парни_прикиньте</code>
+                </td>
+                <td>функции высшего порядка</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section" id="examples">
+          <h2>Пример программы</h2>
+          <p>Факториал на MelLang:</p>
+          <pre><code>(да_будет_свет
+
+  (еще_посидим factorial
+    (омайгад (n)
+      (плаки_плаки_или_нормалдаки
+        (= n 0)
+        1
+        (* n (дай_его factorial (- n 1)))
+      )
+    )
+  )
+
+  (скажи_это_сон_да (дай_его factorial 5))
+
+я_помылся)</code></pre>
+        </section>
+
+        <section class="section" id="web-ide">
+          <h2>Web IDE</h2>
+          <p>
+            В проекте есть локальная браузерная IDE. Она предоставляет редактор
+            кода, запуск через интерпретатор, панель вывода, загрузку программ
+            из <code>examples/</code> и сохранение новых
+            <code>.mel</code> файлов.
+          </p>
+          <div class="notice">
+            GitHub Pages показывает только статическую документацию. Сама Web
+            IDE с F# backend запускается локально командой
+            <code>dotnet run -- --web</code>.
+          </div>
+        </section>
+
+        <section class="section" id="all-docs">
+          <div class="doc-toolbar">
+            <div>
+              <h2 style="margin: 0">Markdown-документация из папки docs/</h2>
+              <div class="doc-status" id="docStatus">
+                Загрузка файлов из GitHub...
+              </div>
+            </div>
+            <button class="btn" id="reloadDocs">Обновить</button>
+          </div>
+          <div id="docsContainer"></div>
+        </section>
+
+        <div class="footer">
+          MelLang / NormaDaki · Coursework documentation · GitHub Pages
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const CONFIG = {
+        owner: "MAILabs-Edu-2026",
+        repo: "funcpro-coursework-prikolno-2",
+        branch: "main",
+        docsPath: "docs",
+      };
+
+      const docsContainer = document.getElementById("docsContainer");
+      const docStatus = document.getElementById("docStatus");
+      const fileNav = document.getElementById("fileNav");
+      const searchInput = document.getElementById("search");
+
+      const fallbackMarkdown = `# Документация MelLang / NormaDaki
+
+Не удалось автоматически загрузить Markdown-файлы из GitHub API. Ниже показана встроенная резервная документация.
+
+## Назначение проекта
+
+MelLang / NormaDaki — учебный функциональный язык программирования с мемным синтаксисом. Проект демонстрирует путь от исходного текста программы до выполнения через токенизацию, парсинг, построение AST и интерпретацию.
+
+## Реализованные возможности
+
+- переменные и локальные связывания;
+- функции как значения первого класса;
+- замыкания;
+- рекурсия;
+- списки;
+- функции высшего порядка: map, filter, fold;
+- pipeline-вычисления;
+- ленивое вычисление;
+- комментарии в коде через точку с запятой;
+- CLI-запуск и локальная Web IDE.
+
+## Запуск
+
+\`\`\`bash
+cd MelLang
+dotnet run -- examples/factorial.mel
+\`\`\`
+
+## Запуск Web IDE
+
+\`\`\`bash
+cd MelLang
+dotnet run -- --web
+\`\`\`
+
+После запуска открыть: \`http://localhost:5000\`.
+
+## Пример
+
+\`\`\`lisp
+(да_будет_свет
+  (браво_босс x 10)
+  (скажи_это_сон_да x)
+я_помылся)
+\`\`\`
+`;
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function slugify(text) {
+        return (
+          text
+            .toLowerCase()
+            .trim()
+            .replace(/[<>"'`]/g, "")
+            .replace(/\s+/g, "-")
+            .replace(/[^a-zа-яё0-9_\-]/gi, "")
+            .replace(/-+/g, "-") || "section"
+        );
+      }
+
+      function inlineMarkdown(text) {
+        let html = escapeHtml(text);
+        html = html.replace(
+          /\[([^\]]+)\]\(([^)]+)\)/g,
+          '<a href="$2" target="_blank" rel="noreferrer">$1</a>',
+        );
+        html = html.replace(/`([^`]+)`/g, "<code>$1</code>");
+        html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+        html = html.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+        return html;
+      }
+
+      function isTableSeparator(line) {
+        return /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?\s*$/.test(line);
+      }
+
+      function renderTable(lines) {
+        const rows = lines
+          .filter((line) => !isTableSeparator(line))
+          .map((line) =>
+            line
+              .trim()
+              .replace(/^\|/, "")
+              .replace(/\|$/, "")
+              .split("|")
+              .map((cell) => inlineMarkdown(cell.trim())),
+          );
+
+        if (rows.length === 0) return "";
+
+        const head = rows[0];
+        const body = rows.slice(1);
+
+        return `<table><thead><tr>${head.map((cell) => `<th>${cell}</th>`).join("")}</tr></thead><tbody>${body.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      }
+
+      function renderMarkdown(markdown, prefix = "doc") {
+        const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+        let html = "";
+        let inCode = false;
+        let codeLang = "";
+        let codeBuffer = [];
+        let inUl = false;
+        let inOl = false;
+        let paragraph = [];
+
+        function closeParagraph() {
+          if (paragraph.length > 0) {
+            html += `<p>${inlineMarkdown(paragraph.join(" ").trim())}</p>`;
+            paragraph = [];
+          }
+        }
+
+        function closeLists() {
+          if (inUl) {
+            html += "</ul>";
+            inUl = false;
+          }
+          if (inOl) {
+            html += "</ol>";
+            inOl = false;
+          }
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+          const trimmed = line.trim();
+
+          if (trimmed.startsWith("```")) {
+            closeParagraph();
+            closeLists();
+            if (!inCode) {
+              inCode = true;
+              codeLang = trimmed.slice(3).trim();
+              codeBuffer = [];
+            } else {
+              html += `<pre><code data-lang="${escapeHtml(codeLang)}">${escapeHtml(codeBuffer.join("\n"))}</code></pre>`;
+              inCode = false;
+              codeLang = "";
+              codeBuffer = [];
+            }
+            continue;
+          }
+
+          if (inCode) {
+            codeBuffer.push(line);
+            continue;
+          }
+
+          if (trimmed === "") {
+            closeParagraph();
+            closeLists();
+            continue;
+          }
+
+          if (trimmed === "---" || trimmed === "***") {
+            closeParagraph();
+            closeLists();
+            html += "<hr />";
+            continue;
+          }
+
+          if (trimmed.startsWith("|")) {
+            closeParagraph();
+            closeLists();
+            const tableLines = [];
+            while (i < lines.length && lines[i].trim().startsWith("|")) {
+              tableLines.push(lines[i]);
+              i++;
+            }
+            i--;
+            html += renderTable(tableLines);
+            continue;
+          }
+
+          const headingMatch = /^(#{1,6})\s+(.+)$/.exec(trimmed);
+          if (headingMatch) {
+            closeParagraph();
+            closeLists();
+            const level = headingMatch[1].length;
+            const title = headingMatch[2].replace(/#+$/, "").trim();
+            const id = `${prefix}-${slugify(title)}`;
+            html += `<h${level} id="${id}">${inlineMarkdown(title)}</h${level}>`;
+            continue;
+          }
+
+          const quoteMatch = /^>\s?(.*)$/.exec(trimmed);
+          if (quoteMatch) {
+            closeParagraph();
+            closeLists();
+            html += `<blockquote>${inlineMarkdown(quoteMatch[1])}</blockquote>`;
+            continue;
+          }
+
+          const ulMatch = /^[-*+]\s+(.+)$/.exec(trimmed);
+          if (ulMatch) {
+            closeParagraph();
+            if (inOl) {
+              html += "</ol>";
+              inOl = false;
+            }
+            if (!inUl) {
+              html += "<ul>";
+              inUl = true;
+            }
+            html += `<li>${inlineMarkdown(ulMatch[1])}</li>`;
+            continue;
+          }
+
+          const olMatch = /^\d+\.\s+(.+)$/.exec(trimmed);
+          if (olMatch) {
+            closeParagraph();
+            if (inUl) {
+              html += "</ul>";
+              inUl = false;
+            }
+            if (!inOl) {
+              html += "<ol>";
+              inOl = true;
+            }
+            html += `<li>${inlineMarkdown(olMatch[1])}</li>`;
+            continue;
+          }
+
+          paragraph.push(trimmed);
+        }
+
+        if (inCode) {
+          html += `<pre><code data-lang="${escapeHtml(codeLang)}">${escapeHtml(codeBuffer.join("\n"))}</code></pre>`;
+        }
+        closeParagraph();
+        closeLists();
+        return html;
+      }
+
+      function setStatus(text) {
+        docStatus.textContent = text;
+      }
+
+      function renderDocs(files) {
+        docsContainer.innerHTML = "";
+        fileNav.innerHTML = "";
+
+        files.forEach((file, index) => {
+          const articleId = `file-${slugify(file.name.replace(/\.md$/i, ""))}`;
+          const article = document.createElement("article");
+          article.className = "doc-article";
+          article.id = articleId;
+          article.dataset.search =
+            `${file.name}\n${file.markdown}`.toLowerCase();
+          article.innerHTML = `<span class="doc-file">${escapeHtml(file.name)}</span>${renderMarkdown(file.markdown, `md-${index}`)}`;
+          docsContainer.appendChild(article);
+
+          const link = document.createElement("a");
+          link.href = `#${articleId}`;
+          link.textContent = file.name;
+          fileNav.appendChild(link);
+        });
+
+        if (files.length === 0) {
+          docsContainer.innerHTML = `<p>В папке docs не найдено Markdown-файлов.</p>`;
+          fileNav.innerHTML = `<a href="#all-docs">Markdown-файлы не найдены</a>`;
+        }
+      }
+
+      async function loadDocsFromGithub() {
+        setStatus("Загрузка файлов из GitHub...");
+        docsContainer.innerHTML =
+          "<p>Бем-бем-бем... Загружаю Markdown-файлы.</p>";
+        fileNav.innerHTML = `<a href="#all-docs">Загрузка...</a>`;
+
+        const apiUrl = `https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.docsPath}?ref=${CONFIG.branch}`;
+
+        try {
+          const response = await fetch(apiUrl, {
+            headers: { Accept: "application/vnd.github+json" },
+          });
+          if (!response.ok)
+            throw new Error(`GitHub API вернул ${response.status}`);
+
+          const entries = await response.json();
+          const mdEntries = entries
+            .filter((item) => item.type === "file" && /\.md$/i.test(item.name))
+            .sort((a, b) => a.name.localeCompare(b.name, "ru"));
+
+          const files = await Promise.all(
+            mdEntries.map(async (item) => {
+              const raw = await fetch(item.download_url);
+              if (!raw.ok) throw new Error(`Не удалось загрузить ${item.name}`);
+              return { name: item.name, markdown: await raw.text() };
+            }),
+          );
+
+          renderDocs(files);
+          setStatus(`Загружено Markdown-файлов: ${files.length}`);
+        } catch (error) {
+          console.warn(error);
+          renderDocs([{ name: "fallback.md", markdown: fallbackMarkdown }]);
+          setStatus(
+            `Не удалось загрузить docs/*.md автоматически: ${error.message}. Показана резервная документация.`,
+          );
+        }
+      }
+
+      function applySearch() {
+        const query = searchInput.value.trim().toLowerCase();
+        const blocks = document.querySelectorAll(
+          ".section, .doc-article, .grid, .hero",
+        );
+
+        blocks.forEach((block) => {
+          if (!query) {
+            block.classList.remove("hidden-by-search");
+            return;
+          }
+
+          const text = (
+            block.dataset.search ||
+            block.textContent ||
+            ""
+          ).toLowerCase();
+          block.classList.toggle("hidden-by-search", !text.includes(query));
+        });
+      }
+
+      function copyRunCommand() {
+        const text =
+          "cd MelLang\ndotnet run -- examples/factorial.mel\n\n# Web IDE\ndotnet run -- --web";
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById("copyRun");
+          const old = btn.textContent;
+          btn.textContent = "Скопировано";
+          setTimeout(() => (btn.textContent = old), 1200);
+        });
+      }
+
+      searchInput.addEventListener("input", applySearch);
+      document
+        .getElementById("reloadDocs")
+        .addEventListener("click", loadDocsFromGithub);
+      document
+        .getElementById("copyRun")
+        .addEventListener("click", copyRunCommand);
+
+      loadDocsFromGithub();
+    </script>
+  </body>
+</html>
